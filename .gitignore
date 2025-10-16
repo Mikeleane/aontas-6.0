@@ -39,3 +39,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# Node/Next
+node_modules/
+.turbo/
+.vercel/
+coverage/
+# Env / local config
+*.local
+# Editor/OS
+*.log
+# Backups from PowerShell patches
+*.bak_*
+# Locks
+package-lock.json
+pnpm-lock.yaml
+yarn.lock

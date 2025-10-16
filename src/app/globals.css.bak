@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+/* Dyslexia-friendly presentation */
+.dyslexia-friendly * {
+  font-size: 18px;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+}
+.dyslexia-friendly b, .dyslexia-friendly strong { font-weight: 700; }
+.dyslexia-friendly em { font-style: normal; } /* avoid italics */
+/* Print layout: aim for exactly three pages (Standard / Adapted / Key) */
+@media print {
+  @page { size: A4; margin: 12mm; }
+  body { font-size: 12pt; line-height: 1.3; }
+  section { page-break-inside: avoid; }
+  section + section { page-break-before: always; } /* three distinct pages */
+  nav, header, footer, form > div:first-child { display: none !important; } /* hide controls column */
+}
+@media print { .print-hidden { display: none !important; } }
+/* === Aontas print rules === */
+@media print {
+  @page { size: A4; margin: 12mm 12mm 15mm 12mm; }
+  html, body { background: #fff !important; }
+  #aontas-print { display:block !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  /* Hide the app root during print (we render a separate print clone) */
+  #__next, .app-root { display: none !important; }
+  /* Three sections → three pages */
+  #aontas-print .print-section { break-after: page; }
+  #aontas-print .print-section:last-child { break-after: auto; }
+  #aontas-print { font-family: "Noto Serif", "Noto Sans", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", serif; line-height: 1.45; }
+  #aontas-print h1, #aontas-print h2, #aontas-print h3 { margin: 0 0 8px; }
+  #aontas-print .meta { font-size: 11pt; opacity: 0.75; margin-bottom: 8px; }
+  #aontas-print .text { font-size: 12pt; margin: 8px 0 12px; }
+  #aontas-print ol, #aontas-print ul { margin: 6px 0 10px 20px; }
+  #aontas-print .q { margin: 4px 0; }
+  #aontas-print .small { font-size: 10pt; }
+}
+/* Screen preview tweaks so you can eyeball fit before printing */
+#aontas-print { display:none; }
+/* ========= Aontas print overrides ========= */
+@media print {
+  /* Use a tight printable box; browsers will still keep ~1–2mm safety if needed */
+  @page { size: A4; margin: 5mm; }
+
+  html, body { margin: 0 !important; padding: 0 !important; }
+
+  /* Blow away max-width & padding from common containers/gutters */
+  #__next, main, .container, .mx-auto,
+  [class*="container"], [class*="max-w"], [class*="px-"], [class*="py-"], [class*="prose"] {
+    max-width: none !important;
+    width: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Card chrome doesn’t help on paper */
+  .rounded, .border, .shadow, .shadow-md, .shadow-lg {
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Hide on-screen controls */
+  .no-print, button, [role="button"], #print3Btn {
+    display: none !important;
+  }
+
+  /* Slightly tighter leading for dense pages (tweak if needed) */
+  .text, p { line-height: 1.25 !important; }
+}
+/* ========= /print overrides ========= */

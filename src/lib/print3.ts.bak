@@ -1,0 +1,189 @@
+﻿/* ---------- print3.ts (clean) ---------- */
+
+/* Small utils */
+export function escapeHtml(s: string): string {
+  return String(s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;")
+    .replace(/'/g,"&#39;");
+}
+
+function qList(pack:any){
+  const qs = Array.isArray(pack?.questions) ? pack.questions : [];
+  const items = qs.map((q:any)=>"<li>"+escapeHtml(String(q?.prompt||""))+"</li>").join("");
+  return "<ol class=\"q\">"+items+"</ol>";
+}
+
+/* Build HTML for the 3 pages */
+export function buildHTML(data:any){
+  const std = data?.standard ?? { text:"", questions:[] };
+  const adp = data?.adapted ?? { text:"", questions:[] };
+  const key = Array.isArray(data?.teacher_key) ? data.teacher_key : [];
+  const goals = data?.goals ?? { lesson_goals:[], success_criteria:[], cefr_focus:{grammar:[],structures:[],vocabulary:[]} };
+  const notes = data?.teacher_notes ?? { input_record:{}, preteach_vocab:[], cefr_justification:[], extension_activities:[] };
+  const meta = data?.meta || {};
+
+  const facts = key.map((k:any)=>({ id:String(k?.answer_id||""), text:String(k?.answer||k?.text||"") })).filter(x=>x.text);
+
+  function tokens(s:string){
+    return String(s).toLowerCase()
+      .replace(/[^a-záéíóúüñçœæ'\- ]/gi," ")
+      .split(/\s+/).filter((w:string)=>w.length>=4);
+  }
+
+  function answerFromQuestion(q:any):string{
+    // MCQ
+    if (Array.isArray(q?.options) && typeof q?.correct_option==="number" &&
+        q.correct_option>=0 && q.correct_option<q.options.length) {
+      return String(q.options[q.correct_option]);
+    }
+    // TF/TFNG or explicit
+    if (typeof q?.answer === "string" && q.answer.trim()) return q.answer.trim();
+    // By id → fact
+    const id = String(q?.answer_id||"").trim();
+    if (id){
+      const f = facts.find(f=>f.id.toLowerCase()===id.toLowerCase());
+      if (f?.text) return f.text;
+    }
+    // Heuristic overlap
+    const qTok = new Set(tokens(q?.prompt||""));
+    let best = "", score = 0;
+    for (const f of facts){
+      const s = tokens(f.text).filter((t:string)=>qTok.has(t)).length;
+      if (s>score){ score=s; best=f.text; }
+    }
+    return best || "—";
+  }
+
+  const hdr = '<div class="meta">CEFR ' + escapeHtml(meta.target_cefr||'') + ' · ' + escapeHtml(meta.text_type||'') + ' · ' + escapeHtml(meta.output_language||'') + '</div>';
+
+  const factList = facts.map((f, i)=>'<li><strong>F'+(i+1)+':</strong> '+escapeHtml(f.text)+'</li>').join('');
+  const qAnsList = (Array.isArray(std.questions)? std.questions:[])
+    .map((q:any)=>'<li>'+escapeHtml(answerFromQuestion(q))+'</li>').join('');
+  const preteachList = (notes.preteach_vocab||[])
+    .map((v:any)=>'<li><strong>'+escapeHtml(v.term||'')+'</strong>: '+escapeHtml(v.definition||'')+(v?.note? ' — <em>'+escapeHtml(v.note)+'</em>':'')+'</li>').join('');
+  const cefrList = (notes.cefr_justification||[])
+    .map((s:string)=>'<li>'+escapeHtml(s)+'</li>').join('');
+  const extList = (notes.extension_activities||[]).slice(0,2)
+    .map((s:string)=>'<li>'+escapeHtml(s)+'</li>').join('');
+
+  const goalsList = (goals.lesson_goals||[]).map((g:string)=>'<li>'+escapeHtml(g)+'</li>').join('');
+  const successList = (goals.success_criteria||[]).map((g:string)=>'<li>'+escapeHtml(g)+'</li>').join('');
+  const gGrammar = (goals.cefr_focus?.grammar||[]).map(escapeHtml).join(', ');
+  const gStruct  = (goals.cefr_focus?.structures||[]).map(escapeHtml).join(', ');
+  const gVocab   = (goals.cefr_focus?.vocabulary||[]).map(escapeHtml).join(', ');
+
+  const stdText = escapeHtml(std.text).replace(/\n/g,"<br/>");
+  const adpText = escapeHtml(adp.text).replace(/\n/g,"<br/>");
+
+  return `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Aontas — Print</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&family=Noto+Serif:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+  @page { size: A4; margin: 8mm 8mm 10mm 8mm; }
+  html, body { background:#fff; }
+  body { font-family:"Noto Serif","Noto Sans",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; margin:0; }
+  .page { box-sizing:border-box; height: calc(297mm - 18mm); padding: 2mm 2mm 0 2mm; overflow:hidden; }
+  .page h1, .page h2, .page h3 { margin: 0 0 8px; }
+  .meta { font-size: 11pt; opacity:.75; margin-bottom:6px; }
+  .text { font-size: 12pt; margin: 8px 0 10px; }
+  .q { margin: 4px 0; }
+  .small { font-size: 10pt; }
+  .page + .page { page-break-before: always; }
+  .kv { display:grid; grid-template-columns: 140px 1fr; gap:6px 10px; margin:6px 0 10px; }
+  .kv div { padding:2px 0; }
+  .subtle { opacity:.85; }
+</style>
+</head>
+<body>
+  <div id="p1" class="page">
+    <h1>Standard</h1>
+    ${hdr}
+    <div class="text">${stdText}</div>
+    <h2>Questions</h2>
+    ${qList(std)}
+  </div>
+
+  <div id="p2" class="page">
+    <h1>Adapted</h1>
+    ${hdr}
+    <div class="text">${adpText}</div>
+    <h2>Questions</h2>
+    ${qList(adp)}
+  </div>
+
+  <div id="p3" class="page">
+    <h1>Teacher Notes, Goals & Answer key</h1>
+    ${hdr}
+
+    <h2>Input record</h2>
+    <div class="kv small">
+      <div><strong>Source</strong></div><div>${escapeHtml(notes.input_record?.source||"")}</div>
+      <div><strong>Target CEFR</strong></div><div>${escapeHtml(notes.input_record?.target_cefr||"")}</div>
+      <div><strong>Text type</strong></div><div>${escapeHtml(notes.input_record?.text_type||"")}</div>
+      <div><strong>Output language</strong></div><div>${escapeHtml(notes.input_record?.output_language||"")}</div>
+      <div><strong>Length</strong></div><div>${escapeHtml(notes.input_record?.length||"")}</div>
+      <div><strong>Dyslexia-friendly</strong></div><div>${String(!!notes.input_record?.dyslexia_friendly)}</div>
+    </div>
+
+    <h2>Pre-teach vocabulary</h2>
+    <ol class="small">${preteachList}</ol>
+
+    <h2>CEFR justification</h2>
+    <ul class="small">${cefrList}</ul>
+
+    <h2>Extension activities</h2>
+    <ol class="small">${extList}</ol>
+
+    <h2>Goals</h2>
+    <h3 class="subtle">Lesson goals</h3>
+    <ul class="small">${goalsList}</ul>
+    <h3 class="subtle">Success criteria</h3>
+    <ul class="small">${successList}</ul>
+    <h3 class="subtle">CEFR focus</h3>
+    <div class="small"><strong>Grammar:</strong> ${gGrammar}</div>
+    <div class="small"><strong>Structures:</strong> ${gStruct}</div>
+    <div class="small"><strong>Vocabulary:</strong> ${gVocab}</div>
+
+    <h2>Answer key</h2>
+    <h3 class="subtle">Facts (F1…)</h3>
+    <ul class="small">${factList}</ul>
+    <h3 class="subtle">Question answers (1…)</h3>
+    <ol class="small">${qAnsList}</ol>
+  </div>
+
+<script>
+  function mmToPx(mm){ const d=document.createElement("div"); d.style.height=mm+"mm"; d.style.position="absolute"; d.style.visibility="hidden"; document.body.appendChild(d); const px=d.getBoundingClientRect().height; d.remove(); return px; }
+  function fit(el, maxH, start=100, min=85){
+    let size=start, tries=0; el.style.fontSize=size+"%";
+    while (el.scrollHeight>maxH && size>min && tries<16){ size-=3; tries++; el.style.fontSize=size+"%"; }
+  }
+  window.addEventListener("load", ()=>{
+    const usable = mmToPx(297 - 18);
+    ["p1","p2","p3"].forEach(id=>{ const el=document.getElementById(id); if (el) fit(el, usable); });
+    setTimeout(()=>{ try{ window.focus(); }catch(e){} window.print(); }, 60);
+  });
+</script>
+</body>
+</html>`;
+}
+
+/* Open a new window and print */
+export function printThreePages(){
+  const dataEL = document.getElementById("json-result");
+  if (!dataEL) return;
+  let data:any = {};
+  try { data = JSON.parse(dataEL.textContent||"{}"); } catch {}
+  const html = buildHTML(data);
+  const w = window.open("", "_blank");
+  if (!w) return;
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+}
+

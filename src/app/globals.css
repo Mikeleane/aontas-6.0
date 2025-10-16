@@ -1,34 +1,98 @@
-@import "tailwindcss";
+﻿@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Base */
+:root { color-scheme: light; }
+html, body { height: 100%; }
+
+/* Layout helper */
+.container-narrow { max-width: 1100px; }
+
+/* “Card” look without @apply */
+.card{
+  background:#fff;
+  border:1px solid #e5e7eb;           /* slate-200 */
+  border-radius:12px;                  /* ~rounded-xl */
+  box-shadow:0 1px 2px rgba(0,0,0,.05);/* shadow-sm */
+}
+.card h2{
+  font-weight:600;                     /* font-semibold */
+  font-size:1rem;                      /* text-base */
+  line-height:1.5rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Print */
+@media print{
+  @page{ size:A4; margin:10mm 10mm 12mm 10mm; }
+  html,body{ margin:0; padding:0; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .print-hidden{ display:none !important; }
+  .page{ width:210mm; margin:0 auto; box-shadow:none !important; }
+  .no-break-inside{ break-inside:avoid; }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* =========================
+   PRINT START (Aontas)
+   ========================= */
+@media print {
+
+  @page {
+    size: A4;
+    margin: 10mm 10mm 12mm 10mm;
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Hide builder chrome; keep result only */
+  header, nav, footer, form, .print-hidden { display: none !important; }
+
+  main {
+    padding: 0 !important;
+    background: #fff !important;
+    color: #111 !important;
+  }
+
+  /* “Sheet” look for each section */
+  .sheet {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 10mm 8mm;
+    background: #fff;
+  }
+
+  /* Keep logical blocks together */
+  .avoid-break, .teacher-panel, .answer-key, .notes-panel, .preteach-list,
+  .question-block, ol, ul, table, blockquote { break-inside: avoid; }
+
+  /* Friendly type sizes */
+  h1 { font-size: 18pt; margin: 0 0 10pt; }
+  h2 { font-size: 14pt; margin: 14pt 0 6pt; break-after: avoid; }
+  h3 { font-size: 12pt; margin: 12pt 0 6pt; break-after: avoid; }
+  p, li { font-size: 10.5pt; line-height: 1.35; orphans: 3; widows: 3; }
+
+  .question-block ol > li, .sheet ol > li { margin: 4pt 0; }
+
+  .section-title {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 4pt;
+    margin-bottom: 8pt;
+  }
+
+  /* Explicit control if you add these classes in markup */
+  .page-break { break-after: page; }
+  .avoid-page-break { break-inside: avoid; }
+
+  /* Don’t print link URLs */
+  a[href]:after { content: "" !important; }
 }
-/* Dyslexia-friendly presentation */
-.dyslexia-friendly * {
-  font-size: 18px;
-  line-height: 1.7;
-  letter-spacing: 0.01em;
-}
-.dyslexia-friendly b, .dyslexia-friendly strong { font-weight: 700; }
-.dyslexia-friendly em { font-style: normal; } /* avoid italics */
+/* =========================
+   PRINT END (Aontas)
+   ========================= */
+

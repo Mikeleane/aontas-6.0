@@ -1,0 +1,199 @@
+﻿"use client";
+import { useState } from "react";
+import { type TGenerateResponse } from "@/lib/schema";
+
+const langs = ["en","es","fr","de","it","pt","nl","sv","pl","el","cs"];
+const types = [
+  {v:"informal_email", l:"Informal email"},
+  {v:"formal_email",   l:"Formal email"},
+  {v:"article",        l:"Article"},
+  {v:"report",         l:"Report"},
+  {v:"story",          l:"Story"},
+  {v:"essay",          l:"Essay"},
+  {v:"blog_post",      l:"Blog post"}
+];
+
+async function exportDocx(data: TGenerateResponse) {
+  const res = await fetch("/api/docx", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      data,
+      title: `Aontas_${data.meta.target_cefr}_${data.meta.text_type}_${data.meta.output_language}`
+    })
+  });
+  if (!res.ok) {
+    alert("DOCX export failed.");
+    return;
+  }
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `Aontas_${data.meta.target_cefr}_${data.meta.text_type}_${data.meta.output_language}.docx`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+export default function Page() {
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<TGenerateResponse | null>(null);
+  const [dyslexic, setDyslexic] = useState(true);
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    setResult(null);
+
+    const fd = new FormData(e.currentTarget);
+    const payload = Object.fromEntries(fd.entries());
+    const dys = !!payload.dyslexiaFriendly;
+    setDyslexic(dys);
+
+    const res = await fetch("/api/generate", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({
+        sourceText: payload.sourceText || undefined,
+        sourceUrl: payload.sourceUrl || undefined,
+        targetCefr: payload.targetCefr,
+        textType: payload.textType,
+        outputLanguage: payload.outputLanguage,
+        length: payload.length,
+        publicSchoolMode: !!payload.publicSchoolMode,
+        dyslexiaFriendly: dys
+      })
+    });
+    const json = await res.json();
+    setResult(res.ok ? json : null);
+    setLoading(false);
+  }
+
+  return (
+    <main className="p-6 max-w-6xl mx-auto">
+      <div className="flex items-center justify-between gap-4 mb-3">
+        <h1 className="text-2xl font-semibold">Aontas — Builder</h1>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className="px-3 py-1 border rounded"
+            onClick={(e)=>{e.preventDefault(); window.print();}}
+  // Enable/disable the DOCX button based on result
+  // and download helper
+  function enableDocxButton(enabled: boolean) {
+    const btn = document.getElementById("docxBtn") as HTMLButtonElement | null;
+    if (btn) btn.disabled = !enabled;
+  }
+
+  async function exportDocx(data: any) {
+    const res = await fetch("/api/docx", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data, title: `Aontas_${data.meta.target_cefr}_${data.meta.text_type}_${data.meta.output_language}` })
+    });
+    if (!res.ok) {
+      alert("DOCX export failed.");
+      return;
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Aontas_${data.meta.target_cefr}_${data.meta.text_type}_${data.meta.output_language}.docx`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+          >
+            Print
+          </button>
+          <button
+            type="button"
+            className="px-3 py-1 border rounded disabled:opacity-50"
+            disabled={!result}
+            onClick={(e)=>{e.preventDefault(); if(result){ exportDocx(result); }}}
+          >
+            Export .docx
+          </button>
+        </div>
+      </div>
+
+      <form onSubmit={onSubmit} className="grid md:grid-cols-2 gap-4">
+        <div className="space-y-3">
+          <label className="flex items-center gap-2">
+            <input type="checkbox" name="publicSchoolMode" defaultChecked />
+            <span>Public school</span>
+          </label>
+
+          <div className="grid grid-cols-2 gap-3">
+            <select name="targetCefr" className="border p-2 rounded">
+              {["A1","A2","B1","B2","C1","C2"].map(l => <option key={l}>{l}</option>)}
+            </select>
+            <select name="textType" className="border p-2 rounded">
+              {types.map(t => <option key={t.v} value={t.v}>{t.l}</option>)}
+            </select>
+            <select name="outputLanguage" className="border p-2 rounded">
+              {langs.map(l => <option key={l} value={l}>{l}</option>)}
+            </select>
+            <select name="length" className="border p-2 rounded" defaultValue="standard">
+              <option value="short">Short</option>
+              <option value="standard">Standard</option>
+              <option value="long">Long</option>
+            </select>
+          </div>
+
+          <textarea name="sourceText" placeholder="Paste source text…" rows={8} className="w-full border p-2 rounded" />
+          <input name="sourceUrl" placeholder="…or paste a source URL" className="w-full border p-2 rounded" />
+
+          <label className="flex items-center gap-2">
+            <input type="checkbox" name="dyslexiaFriendly" defaultChecked />
+            <span>Dyslexia-friendly (adapted pack)</span>
+          </label>
+
+          <button disabled={loading} className="px-4 py-2 rounded bg-black text-white disabled:opacity-50">
+            {loading ? "Generating…" : "Generate"}
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {!result && <div className="text-gray-500">Results will appear here. Use Print or Export when ready.</div>}
+
+          {result && (
+            <>
+              <section className="border rounded p-3">
+                <h2 className="font-semibold mb-2">Standard content</h2>
+                <p className="mb-2 whitespace-pre-wrap">{result.standard.text}</p>
+                <ol className="list-decimal pl-5 space-y-1">
+                  {result.standard.questions.map(q => <li key={q.id}>{q.prompt}</li>)}
+                </ol>
+              </section>
+
+              <section className="border rounded p-3">
+                <h2 className="font-semibold mb-2">Adaptive content (LD)</h2>
+                <div className={["prose prose-sm max-w-none", dyslexic ? "dyslexia-friendly" : ""].join(" ")}>
+                  <p className="mb-2 whitespace-pre-wrap">{result.adapted.text}</p>
+                </div>
+                <ol className="list-decimal pl-5 space-y-1">
+                  {result.adapted.questions.map(q => <li key={q.id}>{q.prompt}</li>)}
+                </ol>
+              </section>
+
+              <section className="border rounded p-3">
+                <h2 className="font-semibold mb-2">Teacher notes + Answer key</h2>
+                <ul className="list-disc pl-5 space-y-1">
+                  {result.teacher_key.map(a => (
+                    <li key={a.answer_id}><b>{a.answer_id}:</b> {a.answer}</li>
+                  ))}
+                </ul>
+              </section>
+            </>
+          )}
+        </div>
+      </form>
+    </main>
+  );
+}
+
