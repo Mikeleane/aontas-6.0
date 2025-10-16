@@ -26,7 +26,7 @@ async function fetchAndExtract(url: string): Promise<string> {
 }
 function countWords(s: string) {
   if (!s) return 0;
-  const tokens = s.trim().match(/[A-Za-zÃƒâ‚¬-Ãƒâ€“ÃƒËœ-ÃƒÂ¶ÃƒÂ¸-ÃƒÂ¿0-9Ã¢â‚¬â„¢']+/g);
+  const tokens = s.trim().match(/[A-Za-zÃƒÆ\u2019Ã¢â€šÂ¬-ÃƒÆ\u2019Ã¢â‚¬â€œÃƒÆ\u2019Ã‹Å“-ÃƒÆ\u2019Ã‚Â¶ÃƒÆ\u2019Ã‚Â¸-ÃƒÆ\u2019Ã‚Â¿0-9ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢']+/g);
   return tokens ? tokens.length : 0;
 }
 const ALLOWED_TYPES = new Set(["mcq","tf","tfng","short"]);
@@ -94,7 +94,7 @@ function answerFromQuestion(q:any, facts:any[]=[]): string {
     const f = facts.find((x:any) => String(x.id).toLowerCase() === id.toLowerCase());
     if (f?.text) return String(f.text).trim();
   }
-  return "Ã¢â‚¬â€";
+  return "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â";
 }
 function sanitizeTeacherKey(raw:any, facts:{id:string,text:string}[]) {
   const arr = asArray<any>(raw);
@@ -129,7 +129,7 @@ function normaliseQuestions(raw:any, facts:any[]){
     answer: answerFromQuestion(q, facts),
     skill: q?.skill
   }));
-  while (out.length < 8) out.push({ id: "q"+(out.length+1), prompt: "", type: "short", answer: "Ã¢â‚¬â€" } as any);
+  while (out.length < 8) out.push({ id: "q"+(out.length+1), prompt: "", type: "short", answer: "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â" } as any);
   return out;
 }
 function alignAdaptedToStandard(stdQs:any[], adpQs:any[]){
@@ -139,7 +139,7 @@ function alignAdaptedToStandard(stdQs:any[], adpQs:any[]){
     return {
       ...q,
       answer_id: q?.answer_id || s?.answer_id || "",
-      answer: (q?.answer && String(q.answer).trim()) ? String(q.answer).trim() : (s?.answer || "Ã¢â‚¬â€"),
+      answer: (q?.answer && String(q.answer).trim()) ? String(q.answer).trim() : (s?.answer || "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â"),
     };
   });
 }
@@ -181,7 +181,7 @@ function fillTeacherKeyFromQuestions(teacher_key:any[], packs:any[], facts:any[]
       const id = String(q?.answer_id || "");
       if (!id || known.has(id)) continue;
       const text = answerFromQuestion(q, facts);
-      teacher_key.push({ answer_id: id, answer: text || "Ã¢â‚¬â€" });
+      teacher_key.push({ answer_id: id, answer: text || "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â" });
       known.add(id);
     }
   }
@@ -218,13 +218,13 @@ function extractPreteachFromText(text:string){
   text = (text || "").replace(/[\u2010-\u2015]/g,"-");
   const lower = text.toLowerCase();
   const stop = new Set(("the a an and but or so nor for of to in on at by from into over about as is are was were be been being this that these those it its their his her our your i you he she we they them who whom which what when where why how with without than then also just very really more most much many few any some each every other another can could should would may might do does did done not no yes one two three four five six seven eight nine ten").split(/\s+/).filter(Boolean));
-  const tokens = (lower.match(/[a-zÃƒÂ¡ÃƒÂ©ÃƒÂ­ÃƒÂ³ÃƒÂºÃƒÂ¼ÃƒÂ±ÃƒÂ§Ã…â€œÃƒÂ¦][a-zÃƒÂ¡ÃƒÂ©ÃƒÂ­ÃƒÂ³ÃƒÂºÃƒÂ¼ÃƒÂ±ÃƒÂ§Ã…â€œÃƒÂ¦'\-]{2,}/gi) || []).map(t => t.replace(/^'+|'+$/g,""));
+  const tokens = (lower.match(/[a-zÃƒÆ\u2019Ã‚Â¡ÃƒÆ\u2019Ã‚Â©ÃƒÆ\u2019Ã‚Â­ÃƒÆ\u2019Ã‚Â³ÃƒÆ\u2019Ã‚ÂºÃƒÆ\u2019Ã‚Â¼ÃƒÆ\u2019Ã‚Â±ÃƒÆ\u2019Ã‚Â§Ãƒâ€¦Ã¢â‚¬Å“ÃƒÆ\u2019Ã‚Â¦][a-zÃƒÆ\u2019Ã‚Â¡ÃƒÆ\u2019Ã‚Â©ÃƒÆ\u2019Ã‚Â­ÃƒÆ\u2019Ã‚Â³ÃƒÆ\u2019Ã‚ÂºÃƒÆ\u2019Ã‚Â¼ÃƒÆ\u2019Ã‚Â±ÃƒÆ\u2019Ã‚Â§Ãƒâ€¦Ã¢â‚¬Å“ÃƒÆ\u2019Ã‚Â¦'\-]{2,}/gi) || []).map(t => t.replace(/^'+|'+$/g,""));
   const freq: Record<string, number> = {};
   for (const w of tokens) { if (w.length<4) continue; if (stop.has(w)) continue; freq[w]=(freq[w]||0)+1; }
   const singles = Object.entries(freq).sort((a,b)=>b[1]-a[1]).map(([t])=>t);
   const raw = lower.split(/\s+/);
   const phraseFreq: Record<string, number> = {};
-  const clean = (w:string)=> (w||"").replace(/[^a-zÃƒÂ¡ÃƒÂ©ÃƒÂ­ÃƒÂ³ÃƒÂºÃƒÂ¼ÃƒÂ±ÃƒÂ§Ã…â€œÃƒÂ¦'\-]/gi,"");
+  const clean = (w:string)=> (w||"").replace(/[^a-zÃƒÆ\u2019Ã‚Â¡ÃƒÆ\u2019Ã‚Â©ÃƒÆ\u2019Ã‚Â­ÃƒÆ\u2019Ã‚Â³ÃƒÆ\u2019Ã‚ÂºÃƒÆ\u2019Ã‚Â¼ÃƒÆ\u2019Ã‚Â±ÃƒÆ\u2019Ã‚Â§Ãƒâ€¦Ã¢â‚¬Å“ÃƒÆ\u2019Ã‚Â¦'\-]/gi,"");
   const ok = (w:string)=> w.length>2 && !stop.has(w);
   for (let i=0;i<raw.length;i++){
     const w1=clean(raw[i]), w2=clean(raw[i+1]||""), w3=clean(raw[i+2]||"");
@@ -243,7 +243,7 @@ function extractPreteachFromText(text:string){
   }
   return candidates.slice(0, 12).map(t => ({
     term: t,
-    definition: "From the passage Ã¢â‚¬â€ pre-teach meaning and one example sentence.",
+    definition: "From the passage ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â pre-teach meaning and one example sentence.",
     note: undefined
   }));
 }
@@ -284,7 +284,7 @@ function buildTeacherNotes(
   if (ext.length < 2) {
     ext = [
       "Pair task: upgrade two sentences from the text using the target structure; peer-check for accuracy.",
-      "Short writing: 90Ã¢â‚¬â€œ120 words reusing 6+ target items (highlight them); swap and give one improvement each."
+      "Short writing: 90ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“120 words reusing 6+ target items (highlight them); swap and give one improvement each."
     ];
   } else if (ext.length > 2) ext = ext.slice(0,2);
   return { input_record: inRec, preteach_vocab: preteach, cefr_justification: cefrJust, extension_activities: ext };
@@ -300,15 +300,15 @@ Return JSON for two parallel reading packs:
 - ADAPTED text + 8 questions (simpler stems/options)
 Both packs share a single teacher_key via answer_id.
 QUESTION BALANCE (in order):
-1Ã¢â‚¬â€œ5: comprehension ("comp")
-6: language ("synonym" or "antonym") Ã¢â‚¬â€ MCQ
-7: language ("grammar") Ã¢â‚¬â€ MCQ
-8: language ("collocation" or "reference") Ã¢â‚¬â€ MCQ
+1ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“5: comprehension ("comp")
+6: language ("synonym" or "antonym") ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â MCQ
+7: language ("grammar") ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â MCQ
+8: language ("collocation" or "reference") ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â MCQ
 STANDARD RULES
 - Use requested CEFR, text type/register, and OUTPUT language.
 - Standard text must be close to WORD_TARGET.
 ADAPTED RULES
-- SAME CEFR and canonical facts; 75Ã¢â‚¬â€œ85% of Standard length.
+- SAME CEFR and canonical facts; 75ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“85% of Standard length.
 - Reduce cognitive load only (chunking, shorter sentences, clearer cohesion).
 SCHEMA KEYS:
 (meta, goals, canonical_facts, standard{ text, questions[Question] }, adapted{ text, questions[Question] }, teacher_key)
@@ -324,7 +324,7 @@ function userPrompt(params: TGenerateRequest, source: string, wordTarget: number
     "- Allowed grammar: " + spec.grammar.join("; "),
     "- Allowed structures: " + spec.structures.join("; "),
     "- Vocabulary scope: " + spec.vocabulary.join("; "),
-    "- ESL targets (Q6Ã¢â‚¬â€œQ8): " + spec.esl_targets.join("; ")
+    "- ESL targets (Q6ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Q8): " + spec.esl_targets.join("; ")
   ];
   return [
     "INPUT_LANGUAGE: auto-detect",
@@ -424,7 +424,7 @@ export async function POST(request: NextRequest) {
     const outputLabel = ({en:"English",es:"Spanish",fr:"French",de:"German",it:"Italian",pt:"Portuguese",nl:"Dutch",sv:"Swedish",pl:"Polish",el:"Greek",cs:"Czech",ga:"Irish (Gaeilge)",la:"Latin (Latina)"} as any)[parsed.outputLanguage] ?? parsed.outputLanguage;
 
     const teacher_key_common = [
-      ...(facts || []).map((f:any, i:number)=>({ label: "F"+(i+1), text: asString(f.text).trim() || "Ã¢â‚¬â€" })),
+      ...(facts || []).map((f:any, i:number)=>({ label: "F"+(i+1), text: asString(f.text).trim() || "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â" })),
       ...stdQsNorm.slice(0,8).map((q:any,i:number)=>({ label: String(i+1), text: answerFromQuestion(q, facts) }))
     ];
 
@@ -479,7 +479,7 @@ function answerFromQuestion2(q:any, facts:any[]=[]): string {
   }
   if (typeof q?.answer === "string" && q.answer.trim()) return q.answer.trim();
   if (id) { const f = facts.find((x:any)=>String(x.id)===id); if (f?.text) return String(f.text).trim(); }
-  return "Ã¢â‚¬â€";
+  return "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â";
 }
 function normaliseQuestions2(raw:any, facts:any[]) {
   const arr = Array.isArray(raw) ? raw : [];
@@ -493,7 +493,7 @@ function normaliseQuestions2(raw:any, facts:any[]) {
     answer: answerFromQuestion2(q,facts),
     skill: q?.skill
   }));
-  while (out.length<8) out.push({ id: "q"+(out.length+1), prompt: "", type: "short", answer_id: "F1", answer:"Ã¢â‚¬â€", skill:"comp" });
+  while (out.length<8) out.push({ id: "q"+(out.length+1), prompt: "", type: "short", answer_id: "F1", answer:"ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â", skill:"comp" });
   return out;
 }
 function alignAdaptedToStandard2(stdQs:any[], adpQs:any[]){
@@ -502,7 +502,7 @@ function alignAdaptedToStandard2(stdQs:any[], adpQs:any[]){
     return {
       ...q,
       answer_id: q?.answer_id || s?.answer_id || "",
-      answer: (typeof q?.answer==="string" && q.answer.trim()) ? q.answer.trim() : (s?.answer || "Ã¢â‚¬â€")
+      answer: (typeof q?.answer==="string" && q.answer.trim()) ? q.answer.trim() : (s?.answer || "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â")
     };
   });
 }
@@ -514,7 +514,7 @@ function fillTeacherKeyFromQuestions2(teacher_key:any[], packs:any[], facts:any[
       const id = String(q?.answer_id || "");
       if (!id || known.has(id)) continue;
       const text = answerFromQuestion2(q, facts);
-      teacher_key.push({ answer_id: id, answer: text || "Ã¢â‚¬â€" });
+      teacher_key.push({ answer_id: id, answer: text || "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â" });
       known.add(id);
     }
   }
@@ -539,7 +539,7 @@ function sanitizeModelJson2(modelJson:any, parsed:TGenerateRequest, wordTarget:n
   );
 
   const teacher_key_common = [
-    ...(facts||[]).map((f:any,i:number)=>({ label: "F"+(i+1), text: String(f?.text ?? "").trim() || "Ã¢â‚¬â€" })),
+    ...(facts||[]).map((f:any,i:number)=>({ label: "F"+(i+1), text: String(f?.text ?? "").trim() || "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â" })),
     ...stdQsNorm.map((q:any,i:number)=>({ label: String(i+1), text: answerFromQuestion2(q, facts) }))
   ];
 
