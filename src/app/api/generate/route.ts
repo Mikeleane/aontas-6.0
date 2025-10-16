@@ -4,10 +4,12 @@ import { targetWords } from "@/lib/cefr";
 import { STYLE_GUIDE } from "@/lib/styles";
 import { LEVEL_RULES } from "@/lib/levels";
 import OpenAI from "openai";
+export const dynamic = 'force-dynamic';
 import { JSDOM } from "jsdom";
 import { Readability } from "@mozilla/readability";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+let __openai:any;
+function getOpenAI(){ if (!__openai) { __openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "" }); } return __openai; }
 
 /* ---------------- utilities ---------------- */
 async function fetchAndExtract(url: string): Promise<string> {
@@ -351,7 +353,7 @@ function userPrompt(params: TGenerateRequest, source: string, wordTarget: number
 /* --------------- post-process --------------- */
 async function reviseToRange(text: string, min: number, max: number, lang: string, textType: string, cefr: string, label: string) {
   async function pass(curr: string, hint: string) {
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: "gpt-4o-mini",
       temperature: 0.2,
       response_format: { type: "json_object" },
@@ -389,7 +391,7 @@ export async function POST(request: NextRequest) {
     if (!source) throw new Error("No usable source text. Try pasting the text, or use an AMP link.");
     const wordTarget = targetWords(parsed.targetCefr, parsed.length, parsed.textType);
 
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: "gpt-4o-mini",
       temperature: 0.4,
       response_format: { type: "json_object" },
