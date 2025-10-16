@@ -2,9 +2,7 @@
   "version": 2,
   "framework": "nextjs",
   "functions": {
-    "api/*": {
-      "maxDuration": 60,
-      "memory": 2048
-    }
+    "src/app/api/**/route.ts": { "maxDuration": 60, "memory": 2048 },
+    "src/app/api/**/route.js": { "maxDuration": 60, "memory": 2048 }
   }
 }
