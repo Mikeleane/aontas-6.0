@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "framework": "nextjs",
+  "functions": {
+    "api/*": {
+      "maxDuration": 60,
+      "memory": 2048
+    }
+  }
+}
