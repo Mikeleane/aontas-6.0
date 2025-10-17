@@ -126,7 +126,7 @@ export default function Page() {
   }
 
   return (
-    <main className="page container-narrow mx-auto p-4 space-y-6">
+    <main className="page container-narrow mx-auto p-4 space-y-6 sheet">
       <header className="flex items-center justify-between print-hidden">
         <h1 className="text-xl font-semibold">Aontas Builder</h1>
         <div className="flex gap-2">
@@ -187,7 +187,7 @@ export default function Page() {
               className="border rounded px-2 py-1"
               value={form.outputLanguage}
               onChange={(e) => setForm((f) => ({ ...f, outputLanguage: e.target.value }))}
-              placeholder="en, fr, esÃ¢â‚¬Â¦"
+              placeholder="en, fr, esÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦"
             />
           </label>
 
@@ -197,7 +197,7 @@ export default function Page() {
               className="border rounded px-2 py-1"
               value={form.sourceUrl}
               onChange={(e) => setForm((f) => ({ ...f, sourceUrl: e.target.value }))}
-              placeholder="https://Ã¢â‚¬Â¦"
+              placeholder="https://ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦"
             />
           </label>
 
@@ -239,7 +239,7 @@ export default function Page() {
             className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
             disabled={loading}
           >
-            {loading ? "GeneratingÃ¢â‚¬Â¦" : "Generate"}
+            {loading ? "GeneratingÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦" : "Generate"}
           </button>
           {error && <div className="text-red-600 text-sm">{error}</div>}
         </div>
@@ -254,7 +254,7 @@ export default function Page() {
             </div>
 
             <div className="card p-4">
-              <h2 className="mb-3">Standard Ã¢â‚¬â€ 8 questions</h2>
+              <h2 className="mb-3">Standard ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â 8 questions</h2>
               <QList qs={result.standard?.questions || []} />
             </div>
 
@@ -264,7 +264,7 @@ export default function Page() {
             </div>
 
             <div className="card p-4">
-              <h2 className="mb-3">Adapted Ã¢â‚¬â€ 8 questions</h2>
+              <h2 className="mb-3">Adapted ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â 8 questions</h2>
               <QList qs={result.adapted?.questions || []} />
             </div>
           </section>

@@ -96,3 +96,49 @@ html, body { height: 100%; }
    PRINT END (Aontas)
    ========================= */
 
+
+/* AONTAS_PRINT_START */
+/* ===== Print layout ===== */
+@page { size: A4 portrait; margin: 12mm; }
+
+@media print {
+  html, body { background: #fff !important; }
+  /* Hide app chrome */
+  header, nav, form, .no-print, button { display: none !important; }
+
+  /* Page sheet */
+  .sheet, main {
+    width: 186mm;        /* 210 - (12+12) */
+    min-height: 273mm;   /* 297 - (12+12) */
+    margin: 0 auto;
+    background: #fff;
+    color: #000;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    line-height: 1.35;
+  }
+  .sheet + .sheet { page-break-before: always; }
+  .page-break { break-before: page; }
+
+  /* Keep blocks together if you add these classes in markup */
+  .question, .reading, .answer-grid { break-inside: avoid; }
+}
+
+/* ===== AnswerGrid styles ===== */
+.answer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* two columns, four rows = 8 lines */
+  gap: 6mm 10mm;
+  margin: 6mm 0 0;
+  font-size: 12pt;
+}
+.answer-item { display: flex; align-items: center; gap: 6mm; }
+.answer-item .bubble {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 8mm; height: 8mm; border: 1px solid #000; border-radius: 50%;
+  font-weight: 600; font-size: 10pt;
+}
+.answer-item .letters {
+  letter-spacing: 2px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+/* AONTAS_PRINT_END */
