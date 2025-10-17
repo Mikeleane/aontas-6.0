@@ -8,9 +8,7 @@ async function parseJsonOrThrow(r: Response) {
   const text = await r.text();
   throw new Error('HTTP ' + r.status + ' ' + r.statusText + ': ' + text.slice(0,200));
 }
-import React, { useState } from "react";
-import TeacherPanel from "../../components/TeacherPanel";
-
+ param($m) $m.Value + "`r`n" + $normFn + "`r`n" 
 type Question = {
   id?: string;
   type?: "mcq" | "tf" | "tfng" | "short";
@@ -140,7 +138,7 @@ export default function Page() {
         </div>
       </header>
 
-      <form onSubmit={onSubmit} className="card p-4 print-hidden">
+      <form onSubmit={onSubmit} className="no-print card p-4 print-hidden">
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           <label className="flex flex-col gap-1">
             <span className="text-xs font-medium">Target CEFR</span>
@@ -187,7 +185,7 @@ export default function Page() {
               className="border rounded px-2 py-1"
               value={form.outputLanguage}
               onChange={(e) => setForm((f) => ({ ...f, outputLanguage: e.target.value }))}
-              placeholder="en, fr, esÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦"
+              placeholder="en, fr, esÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦"
             />
           </label>
 
@@ -197,7 +195,7 @@ export default function Page() {
               className="border rounded px-2 py-1"
               value={form.sourceUrl}
               onChange={(e) => setForm((f) => ({ ...f, sourceUrl: e.target.value }))}
-              placeholder="https://ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦"
+              placeholder="https://ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦"
             />
           </label>
 
@@ -239,7 +237,7 @@ export default function Page() {
             className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
             disabled={loading}
           >
-            {loading ? "GeneratingÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦" : "Generate"}
+            {loading ? "GeneratingÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦" : "Generate"}
           </button>
           {error && <div className="text-red-600 text-sm">{error}</div>}
         </div>
@@ -254,7 +252,7 @@ export default function Page() {
             </div>
 
             <div className="card p-4">
-              <h2 className="mb-3">Standard ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â 8 questions</h2>
+              <h2 className="mb-3">Standard ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â 8 questions</h2>
               <QList qs={result.standard?.questions || []} />
             </div>
 
@@ -264,7 +262,7 @@ export default function Page() {
             </div>
 
             <div className="card p-4">
-              <h2 className="mb-3">Adapted ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â 8 questions</h2>
+              <h2 className="mb-3">Adapted ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â 8 questions</h2>
               <QList qs={result.adapted?.questions || []} />
             </div>
           </section>

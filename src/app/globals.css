@@ -1,4 +1,4 @@
-﻿@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -9,7 +9,7 @@ html, body { height: 100%; }
 /* Layout helper */
 .container-narrow { max-width: 1100px; }
 
-/* “Card” look without @apply */
+/* â€œCardâ€ look without @apply */
 .card{
   background:#fff;
   border:1px solid #e5e7eb;           /* slate-200 */
@@ -57,7 +57,7 @@ html, body { height: 100%; }
     color: #111 !important;
   }
 
-  /* “Sheet” look for each section */
+  /* â€œSheetâ€ look for each section */
   .sheet {
     box-sizing: border-box;
     width: 100%;
@@ -89,7 +89,7 @@ html, body { height: 100%; }
   .page-break { break-after: page; }
   .avoid-page-break { break-inside: avoid; }
 
-  /* Don’t print link URLs */
+  /* Donâ€™t print link URLs */
   a[href]:after { content: "" !important; }
 }
 /* =========================
@@ -142,3 +142,67 @@ html, body { height: 100%; }
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 }
 /* AONTAS_PRINT_END */
+\n/* === Aontas print layout === */
+@media print {
+  /* hide any UI-only chrome */
+  .no-print, header, nav, footer, [data-ui], .builder-toolbar { display: none !important; }
+
+  /* show only in print if you ever need to */
+  .print-only { display: block !important; }
+
+  /* page + section control */
+  @page { size: A4; margin: 12mm 14mm; }
+  .section { break-inside: avoid; page-break-inside: avoid; }
+  .section--standard  { break-before: page; page-break-before: always; }
+  .section--adaptive  { break-before: page; page-break-before: always; }
+  .section--teacher   { break-before: page; page-break-before: always; }
+
+  /* nicer print typography defaults (keeps Tailwind utilities working) */
+  .print p { orphans: 3; widows: 3; }
+}
+
+/* --- Print layout: A4, answer grid, bubbles --- */
+@media screen {
+  .print-only { display: none !important; }
+}
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm 10mm 12mm 10mm;
+  }
+  html, body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: #fff !important;
+  }
+  .print-hidden { display: none !important; }
+  .print-only   { display: block !important; }
+  .print-page   { page-break-after: always; }
+  .sheet        { width: 190mm; margin: 0 auto; }
+  .answer-grid {
+    display: grid;
+    grid-template-columns: 12mm repeat(8, 1fr);
+    gap: 2mm 3mm;
+    align-items: center;
+    font-size: 11pt;
+  }
+  .answer-grid .hdr {
+    font-weight: 600;
+    text-align: center;
+  }
+  .answer-grid .qnum {
+    text-align: center;
+    font-weight: 600;
+  }
+  .bubble {
+    width: 10mm; height: 10mm;
+    border: 1.2pt solid #000;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    font-weight: 600; font-size: 9pt;
+  }
+  .bubble.fill {
+    background: #000; color: #fff;
+  }
+}
