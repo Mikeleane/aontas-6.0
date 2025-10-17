@@ -1,12 +1,14 @@
 "use client";
 
 
+
 async function parseJsonOrThrow(r: Response) {
   const ct = r.headers.get('content-type') || '';
-  if (ct.includes('application/json')) return await parseJsonOrThrow(r);
+  if (ct.includes('application/json')) return await r.json();
   const text = await r.text();
-  throw new Error(HTTP  : );
-}import React, { useState } from "react";
+  throw new Error('HTTP ' + r.status + ' ' + r.statusText + ': ' + text.slice(0,200));
+}
+import React, { useState } from "react";
 import TeacherPanel from "../../components/TeacherPanel";
 
 type Question = {
@@ -185,7 +187,7 @@ export default function Page() {
               className="border rounded px-2 py-1"
               value={form.outputLanguage}
               onChange={(e) => setForm((f) => ({ ...f, outputLanguage: e.target.value }))}
-              placeholder="en, fr, esâ€¦"
+              placeholder="en, fr, esÃ¢â‚¬Â¦"
             />
           </label>
 
@@ -195,7 +197,7 @@ export default function Page() {
               className="border rounded px-2 py-1"
               value={form.sourceUrl}
               onChange={(e) => setForm((f) => ({ ...f, sourceUrl: e.target.value }))}
-              placeholder="https://â€¦"
+              placeholder="https://Ã¢â‚¬Â¦"
             />
           </label>
 
@@ -237,7 +239,7 @@ export default function Page() {
             className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
             disabled={loading}
           >
-            {loading ? "Generatingâ€¦" : "Generate"}
+            {loading ? "GeneratingÃ¢â‚¬Â¦" : "Generate"}
           </button>
           {error && <div className="text-red-600 text-sm">{error}</div>}
         </div>
@@ -252,7 +254,7 @@ export default function Page() {
             </div>
 
             <div className="card p-4">
-              <h2 className="mb-3">Standard â€” 8 questions</h2>
+              <h2 className="mb-3">Standard Ã¢â‚¬â€ 8 questions</h2>
               <QList qs={result.standard?.questions || []} />
             </div>
 
@@ -262,7 +264,7 @@ export default function Page() {
             </div>
 
             <div className="card p-4">
-              <h2 className="mb-3">Adapted â€” 8 questions</h2>
+              <h2 className="mb-3">Adapted Ã¢â‚¬â€ 8 questions</h2>
               <QList qs={result.adapted?.questions || []} />
             </div>
           </section>
